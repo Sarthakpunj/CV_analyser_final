@@ -1,17 +1,18 @@
-from flask import Flask, render_template, request, jsonify, send_from_directory
 import os
-from model import TrainModel, prediction_result
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
+from model import train_model, prediction_result  # Import the functions from model.py
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'uploads/'
 
-# Configure upload folder
-app.config['UPLOAD_FOLDER'] = 'uploads'
+# Ensure the upload folder exists
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
 # Initialize and train the model
-model = TrainModel()  # Ensures the model is trained upon initialization
+model = train_model()
+model.train()
 
 @app.route('/')
 def index():
@@ -19,36 +20,30 @@ def index():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    # Check if a file is included in the request
     if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
+        return jsonify({'error': 'No file part'})
 
     file = request.files['file']
     if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
+        return jsonify({'error': 'No selected file'})
 
-    # Save the file securely
     filename = secure_filename(file.filename)
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     file.save(filepath)
 
-    # Get the desired skill from the form data
-    desired_skill = request.form.get('skill', '').strip()
-    if not desired_skill:
-        return jsonify({'error': 'Desired skill not provided'}), 400
-
-    # Determine file extension and read the file content
-    file_extension = os.path.splitext(filename)[1].lower()
+    # Get the desired skill from the form
+    desired_skill = request.form['skill']
+    file_extension = os.path.splitext(filename)[1]
+    
+    # Process the uploaded file
     with open(filepath, 'rb') as file_content:
-        # Run analysis on the resume content
         analysis = prediction_result(file_content.read(), file_extension, model, desired_skill)
 
     return jsonify(analysis)
 
-@app.route('/uploads/<filename>')
+@app.route('/<path:filename>')
 def serve_file(filename):
-    # Serve files from the uploads folder
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    return send_from_directory('.', filename)
 
 if __name__ == '__main__':
     app.run(debug=True)
