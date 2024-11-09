@@ -1,0 +1,219 @@
+/* Global Styles */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    scroll-behavior: smooth;
+}
+
+/* Navbar */
+nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: #333;
+    color: white;
+    padding: 10px 0;
+    text-align: center;
+    z-index: 1000;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    padding: 14px 20px;
+    display: inline-block;
+}
+
+nav a:hover {
+    background-color: #575757;
+    border-radius: 5px;
+}
+
+nav .login-btn {
+    background-color: #ff6600;
+    padding: 8px 16px;
+    border-radius: 5px;
+}
+
+/* Landing Page */
+.landing-page {
+    display: flex;
+    height: 100vh;
+    background: linear-gradient(to right, #0066ff, #33ccff);
+    color: white;
+    margin-top: 50px; /* Adjust for fixed navbar */
+}
+
+.landing-content {
+    display: flex;
+    flex: 1;
+}
+
+.instructions {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 40px;
+    text-align: left;
+}
+
+.instructions h1 {
+    font-size: 3rem;
+}
+
+.instructions p {
+    font-size: 1.5rem;
+    margin-top: 20px;
+}
+
+/* Upload Section */
+.upload-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 40px;
+    background-color: white;
+    color: black;
+    border-radius: 20px 0 0 20px;
+    box-shadow: -10px 0px 30px rgba(0, 0, 0, 0.1);
+}
+
+.upload-section h2 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.upload-section input[type="file"], 
+.upload-section input[type="text"], 
+.upload-section button {
+    padding: 12px;
+    margin: 15px 0;
+    width: 100%;
+    border: none;
+    border-radius: 5px;
+}
+
+.upload-section button {
+    background-color: #0066ff;
+    color: white;
+    cursor: pointer;
+}
+
+.upload-section button:hover {
+    background-color: #0055cc;
+}
+
+/* About Us Section */
+.about-us {
+    padding: 80px 20px;
+    background-color: #f9f9f9;
+    text-align: center;
+}
+
+.about-us h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.designer-profiles {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 40px;
+}
+
+.designer {
+    text-align: center;
+}
+
+.designer img {
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    border: 4px solid #0066ff;
+}
+
+.designer-icons {
+    margin-top: 15px;
+}
+
+.designer-icons a {
+    color: #333;
+    margin: 0 10px;
+    font-size: 1.5rem;
+}
+
+.designer-icons a:hover {
+    color: #0066ff;
+}
+
+/* Footer */
+footer {
+    background-color: #333;
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+footer a {
+    color: white;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #0066ff;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #0055cc;
+}
+
+/* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Hide scrollbars */
+    background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+}
+
+.modal-content {
+    background: #fff;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border-radius: 5px;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}

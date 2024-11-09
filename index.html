@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CV X-Ray</title>
+    <link rel="stylesheet" href="../static/styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#about">About Us</a>
+      <a href="#login" class="login-btn">Login</a>
+    </nav>
+
+    <!-- Landing Page -->
+    <section class="landing-page" id="home">
+      <div class="landing-content">
+        <div class="instructions">
+          <h1>Welcome to CV X-ray</h1>
+          <p>
+            Upload your CV and get personalized analysis on your strengths,
+            weaknesses, and areas for improvement.
+          </p>
+        </div>
+        <div class="upload-section">
+          <h2>Upload Your CV</h2>
+          <form id="uploadForm" method="post" enctype="multipart/form-data">
+            <input
+              type="file"
+              name="file"
+              id="file"
+              accept=".pdf, .docx"
+              required
+            />
+            <input
+              type="text"
+              name="skill"
+              id="skill"
+              placeholder="e.g., Python, Data Analysis"
+              required
+            />
+            <button type="submit">Analyze CV</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section class="about-us" id="about">
+      <h2>About Us</h2>
+      <div class="designer-profiles">
+        <div class="designer">
+          <img src="../static/1000045444.jpg" alt="Designer 1" />
+          <h3>PRATYUSH MANNA</h3>
+          <h4>Frontend Developer</h4>
+          <div class="designer-icons">
+            <a href="https://github.com/hakercheck"
+              ><i class="fab fa-github"></i
+            ></a>
+            <a href="https://www.linkedin.com/in/pratyush-manna-66a540265/"
+              ><i class="fab fa-linkedin"></i
+            ></a>
+          </div>
+        </div>
+        <div class="designer">
+          <img
+            src="../static/98601140-656e-48e6-b2e2-1b67ef7799fa.jpg"
+            alt="Designer 2"
+          />
+          <h3>SARTHAK PUNJ</h3>
+          <h4>Backend Developer</h4>
+          <div class="designer-icons">
+            <a href="https://github.com/Sarthakpunj"
+              ><i class="fab fa-github"></i
+            ></a>
+            <a href="https://www.linkedin.com/in/sarthak-punj-8b904b25b/"
+              ><i class="fab fa-linkedin"></i
+            ></a>
+          </div>
+        </div>
+        <div class="designer">
+          <img src="../static/rakshan.jpeg" alt="Designer 3" />
+          <h3>RAKSHAN VAISHNAV</h3>
+          <h4>UI/UX Designer</h4>
+          <div class="designer-icons">
+            <a href="https://dribbble.com/Rakshan535"
+              ><i class="fab fa-github"></i
+            ></a>
+            <a
+              href="https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://in.linkedin.com/in/rakshan-vaishnav-s-420665280&ved=2ahUKEwiCrYTb-_mHAxVa3TgGHQX7Gp8QFnoECBEQAQ&usg=AOvVaw0qoyEfPTXiBMV82QO1s_K-"
+              ><i class="fab fa-linkedin"></i
+            ></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <p>
+        © 2024 CV Analyzer | <a href="mailto:info@cvanalyzer.com">Contact Us</a>
+      </p>
+    </footer>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <div id="result"></div>
+      </div>
+    </div>
+
+    <script>
+      // Modal functionality
+      const modal = document.getElementById("modal");
+      const closeModal = document.querySelector(".close");
+
+      closeModal.onclick = function () {
+        modal.style.display = "none";
+      };
+
+      window.onclick = function (event) {
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      };
+
+      // Form submission and result handling
+      const form = document.getElementById("uploadForm");
+      form.onsubmit = async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+
+        try {
+          const response = await fetch("/predict", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const result = await response.json();
+          console.log("Server response:", result); // Debugging
+
+          const resultContainer = document.getElementById("result");
+          resultContainer.innerHTML = ""; // Clear previous results
+
+          let output = "";
+
+          if (result.strengths && result.strengths.length > 0) {
+            output += `<h3>Strengths:</h3><ul>`;
+            result.strengths.forEach(
+              (strength) => (output += `<li>${strength}</li>`)
+            );
+            output += `</ul>`;
+          }
+
+          if (result.improvements && result.improvements.length > 0) {
+            output += `<h3>Areas for Improvement:</h3><ul>`;
+            result.improvements.forEach(
+              (improvement) => (output += `<li>${improvement}</li>`)
+            );
+            output += `</ul>`;
+          }
+
+          if (result.matched_skills && result.matched_skills.length > 0) {
+            output += `<h3>Matched Skills:</h3><ul>`;
+            result.matched_skills.forEach(
+              (skill) => (output += `<li>${skill}</li>`)
+            );
+            output += `</ul>`;
+          } else {
+            output += `<h3>No Matched Skills Found</h3>`;
+          }
+
+          resultContainer.innerHTML = output;
+          modal.style.display = "block"; // Show the modal
+        } catch (error) {
+          console.error("Error during analysis:", error);
+        }
+      };
+    </script>
+  </body>
+</html>
