@@ -1,31 +1,34 @@
 import pandas as pd
-from sklearn import linear_model
+from sklearn.linear_model import LogisticRegression
 import pdfplumber
 from docx import Document
 from io import BytesIO
 import re
-from collections import Counter
 
-class train_model:
+class TrainModel:
+    def __init__(self):
+        self.model = None
+        self.train()  # Automatically train the model on initialization
+
     def train(self):
+        # Load and preprocess training data
         data = pd.read_csv('training_dataset.csv')
-        array = data.values
-        for i in range(len(array)):
-            array[i][0] = 1 if array[i][0] == "Male" else 0
+        
+        # Convert 'Gender' column to binary values
+        data.iloc[:, 0] = data.iloc[:, 0].apply(lambda x: 1 if x == "Male" else 0)
+        
+        # Split data into features (X) and target (y)
+        train_x = data.iloc[:, :-1].values
+        train_y = data.iloc[:, -1].values
 
-        df = pd.DataFrame(array)
-        maindf = df[[0, 1, 2, 3, 4, 5, 6]]
-        mainarray = maindf.values
-        temp = df[7]
-        train_y = temp.values
-
-        self.mul_lr = linear_model.LogisticRegression(multi_class='multinomial', solver='newton-cg', max_iter=1000)
-        self.mul_lr.fit(mainarray, train_y)
+        # Initialize and train the logistic regression model
+        self.model = LogisticRegression(multi_class='multinomial', solver='newton-cg', max_iter=1000)
+        self.model.fit(train_x, train_y)
 
     def test(self, test_data):
+        # Predict based on test data
         try:
-            test_predict = [int(i) for i in test_data]
-            y_pred = self.mul_lr.predict([test_predict])
+            y_pred = self.model.predict([test_data])
             return y_pred[0]
         except:
             return "All factors for finding personality not entered!"
@@ -33,7 +36,7 @@ class train_model:
 # Text extraction from PDF
 def extract_text_from_pdf(file_content):
     with pdfplumber.open(BytesIO(file_content)) as pdf:
-        text = ''.join([page.extract_text() for page in pdf.pages])
+        text = ''.join([page.extract_text() for page in pdf.pages if page.extract_text() is not None])
     return text
 
 # Text extraction from DOCX
@@ -50,7 +53,7 @@ def analyze_resume(text, model, desired_skill):
     
     analysis = {'strengths': [], 'weaknesses': [], 'improvements': [], 'matched_skills': [], 'skill_status': ''}
 
-    # Convert text to lower case and split into words
+    # Convert text to lowercase for analysis
     text_lower = text.lower()
     words = re.findall(r'\w+', text_lower)
 
@@ -68,7 +71,7 @@ def analyze_resume(text, model, desired_skill):
         analysis['strengths'].append(f"Estimated total experience: {total_experience} years")
 
     # Skill Matching
-    if desired_skill in text_lower:
+    if desired_skill.lower() in text_lower:
         analysis['matched_skills'].append(desired_skill)
         analysis['skill_status'] = f"The skill '{desired_skill}' was found in the resume."
     else:
@@ -77,19 +80,22 @@ def analyze_resume(text, model, desired_skill):
 
     # Use the model to predict something, if necessary
     if model:
-        prediction = model.test([len(words)])  # This is just an example of how you might use the model
+        word_count = len(words)  # Example feature, adjust as needed
+        prediction = model.test([word_count])  # Customize input if needed based on model's training
         analysis['predicted_value'] = prediction
 
     return analysis
 
-# Prediction result
+# Prediction result function
 def prediction_result(file_content, file_extension, model, desired_skill):
-    if file_extension == '.pdf':
+    # Extract text based on file extension
+    if file_extension.lower() == '.pdf':
         resume_text = extract_text_from_pdf(file_content)
-    elif file_extension == '.docx':
+    elif file_extension.lower() == '.docx':
         resume_text = extract_text_from_docx(file_content)
     else:
         return {'error': 'Unsupported file type'}
 
+    # Analyze resume content
     analysis = analyze_resume(resume_text, model, desired_skill)
     return analysis
